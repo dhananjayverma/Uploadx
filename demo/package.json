@@ -1,0 +1,13 @@
+{
+  "name": "smart-uploader-demo",
+  "version": "1.0.0",
+  "description": "Demo server using smart-uploader SDK",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "uploadx": "file:../uploadx"
+  }
+}

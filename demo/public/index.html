@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartUploader Dashboard</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #090a0f;
+      --panel-dark: rgba(18, 20, 29, 0.7);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent-purple: #8b5cf6;
+      --accent-pink: #ec4899;
+      --accent-cyan: #06b6d4;
+      --success: #10b981;
+      --danger: #ef4444;
+      --font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 10% 20%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 90% 80%, rgba(6, 182, 212, 0.15) 0px, transparent 50%);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-dark);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      max-width: 600px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--text-main) 30%, var(--accent-cyan) 70%, var(--accent-purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.025em;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        grid-template-columns: 1.2fr 0.8fr;
+      }
+    }
+
+    /* Glassmorphic Panel styling */
+    .panel {
+      background: var(--panel-dark);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+    }
+
+    .panel h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Drag & Drop Zone */
+    .drop-zone {
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .drop-zone svg {
+      width: 48px;
+      height: 48px;
+      color: var(--accent-cyan);
+      transition: transform 0.3s ease;
+    }
+
+    .drop-zone:hover svg {
+      transform: translateY(-5px);
+    }
+
+    .drop-zone span {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .drop-zone small {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    /* Form Fields & Inputs */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .input-field {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: var(--text-main);
+      font-family: var(--font-family);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .input-field:focus {
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    }
+
+    /* Action Buttons */
+    .btn {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+      border: none;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      font-family: var(--font-family);
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px -10px rgba(139, 92, 246, 0.5);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: none;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+    }
+    .btn-danger:hover {
+      opacity: 0.9;
+      box-shadow: 0 10px 20px -10px rgba(239, 68, 68, 0.5);
+    }
+
+    /* Upload & File Grid */
+    .file-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: all 0.2s ease;
+    }
+
+    .file-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .file-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .file-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      overflow: hidden;
+    }
+
+    .file-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-compress {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .badge-duplicate {
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .action-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.4rem 0.75rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .action-btn.delete:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* Options Panel */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-group input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-purple);
+      cursor: pointer;
+    }
+
+    .checkbox-group label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #1e1b4b;
+      border: 1px solid var(--accent-purple);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      font-weight: 500;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🚀 SmartUploader Engine</h1>
+    <p>A high-performance Multer alternative + self-hosted file management cloud. Automatic WebP image conversion, video/PDF optimization, hash duplicate detection, and Playwright automation.</p>
+  </header>
+
+  <div class="container">
+    
+    <!-- Upload Panel -->
+    <div class="panel">
+      <h2>
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+        File Upload Engine
+      </h2>
+
+      <div class="drop-zone" id="drop-zone">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+        <span>Drag & Drop files here or click to browse</span>
+        <small>Supports Images, Videos, PDFs, Text, ZIPs, etc.</small>
+        <input type="file" id="file-input" multiple>
+      </div>
+
+      <div class="options-grid">
+        <div class="checkbox-group">
+          <input type="checkbox" id="opt-compress" checked>
+          <label for="opt-compress">Auto Compression</label>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="opt-format" checked>
+          <label for="opt-format">Convert (PNG → WebP)</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="opt-maxsize">Max Size Limit</label>
+        <input type="text" id="opt-maxsize" class="input-field" value="100MB" placeholder="e.g. 50MB, 200KB">
+      </div>
+    </div>
+
+    <!-- Right Side: Automation & Querying -->
+    <div class="panel">
+      <h2>
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+        Playwright Automation
+      </h2>
+
+      <div class="form-group">
+        <label for="auto-url">Scrape & Capture URL</label>
+        <input type="url" id="auto-url" class="input-field" placeholder="https://example.com" value="https://news.ycombinator.com">
+      </div>
+
+      <div class="options-grid">
+        <div class="form-group">
+          <label for="auto-format">Output Format</label>
+          <select id="auto-format" class="input-field">
+            <option value="screenshot">PNG Screenshot</option>
+            <option value="pdf">A4 PDF Document</option>
+          </select>
+        </div>
+        <div class="form-group" style="justify-content: flex-end;">
+          <button id="btn-capture" class="btn" style="height: 42px;">Capture Page</button>
+        </div>
+      </div>
+
+      <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+
+      <h2>
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        Inspect File ID
+      </h2>
+
+      <div style="display: flex; gap: 0.5rem;">
+        <input type="text" id="inspect-id" class="input-field" placeholder="Enter short ID (e.g. abc123)">
+        <button id="btn-inspect" class="btn btn-secondary">Query</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Uploaded Files Section -->
+  <div class="panel" style="width: 100%; max-width: 1000px; margin-top: 2rem;">
+    <h2>
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Uploaded Assets
+    </h2>
+
+    <div id="assets-list" style="display: flex; flex-direction: column; gap: 1rem;">
+      <p id="no-assets" style="color: var(--text-muted); text-align: center; padding: 2rem;">No files uploaded in this session yet.</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copied link to clipboard!</div>
+
+  <script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const assetsList = document.getElementById('assets-list');
+    const noAssets = document.getElementById('no-assets');
+    const toast = document.getElementById('toast');
+
+    // Drag-and-drop triggers
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, e => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, e => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+      }, false);
+    });
+
+    dropZone.addEventListener('drop', e => {
+      const files = e.dataTransfer.files;
+      if (files.length) {
+        handleUploads(files);
+      }
+    });
+
+    fileInput.addEventListener('change', e => {
+      if (fileInput.files.length) {
+        handleUploads(fileInput.files);
+      }
+    });
+
+    // Upload Handler
+    async function handleUploads(files) {
+      const compress = document.getElementById('opt-compress').checked;
+      const autoFormat = document.getElementById('opt-format').checked;
+      const maxSize = document.getElementById('opt-maxsize').value;
+
+      noAssets.style.display = 'none';
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // Show placeholders
+        const cardId = 'uploading-' + Date.now() + '-' + i;
+        const cardHtml = `
+          <div class="file-card" id="${cardId}">
+            <div class="file-header">
+              <div class="file-info">
+                <span class="file-name">${file.name}</span>
+                <span class="file-meta">Uploading and compressing...</span>
+              </div>
+            </div>
+          </div>
+        `;
+        assetsList.insertAdjacentHTML('afterbegin', cardHtml);
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('compress', compress);
+        formData.append('autoFormat', autoFormat);
+        formData.append('maxSize', maxSize);
+
+        try {
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          });
+          const result = await res.json();
+          
+          if (result.status === 'success') {
+            const fileData = result.file;
+            updateFileCard(cardId, fileData, result.smartUploaderRaw?.message?.includes('Duplicate'));
+          } else {
+            document.getElementById(cardId).querySelector('.file-meta').innerText = 'Upload failed: ' + result.message;
+            document.getElementById(cardId).querySelector('.file-meta').style.color = 'var(--danger)';
+          }
+        } catch (error) {
+          document.getElementById(cardId).querySelector('.file-meta').innerText = 'Network error during upload';
+          document.getElementById(cardId).querySelector('.file-meta').style.color = 'var(--danger)';
+        }
+      }
+    }
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function updateFileCard(cardId, fileData, isDuplicate) {
+      const card = document.getElementById(cardId);
+      const isCompressed = fileData.mime_type === 'image/webp' || fileData.path.endsWith('.gz');
+      
+      card.id = `file-${fileData.id}`;
+      card.innerHTML = `
+        <div class="file-header">
+          <div class="file-info">
+            <span class="file-name">${fileData.original_name || fileData.filename}</span>
+            <div class="file-meta">
+              <span>ID: <strong>${fileData.id}</strong></span>
+              <span>•</span>
+              <span>Size: ${formatBytes(fileData.size)}</span>
+              <span>•</span>
+              <span>Type: ${fileData.mime_type}</span>
+              ${isCompressed ? '<span class="badge badge-compress">Compressed</span>' : ''}
+              ${isDuplicate ? '<span class="badge badge-duplicate">Duplicate Checked</span>' : ''}
+            </div>
+          </div>
+        </div>
+        <div class="file-actions">
+          <button class="action-btn" onclick="copyLink('${fileData.url}')">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            Copy Short URL
+          </button>
+          <a class="action-btn" href="${fileData.url}" target="_blank">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            Open File
+          </a>
+          <button class="action-btn delete" onclick="deleteAsset('${fileData.id}')">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Delete
+          </button>
+        </div>
+      `;
+    }
+
+    // Playwright capture trigger
+    document.getElementById('btn-capture').addEventListener('click', async () => {
+      const url = document.getElementById('auto-url').value;
+      const formatType = document.getElementById('auto-format').value;
+      const btn = document.getElementById('btn-capture');
+
+      if (!url) return alert('Enter a URL to capture');
+
+      btn.innerText = 'Capturing...';
+      btn.disabled = true;
+
+      // Show temporary card
+      const cardId = 'uploading-capture-' + Date.now();
+      const cardHtml = `
+        <div class="file-card" id="${cardId}">
+          <div class="file-header">
+            <div class="file-info">
+              <span class="file-name">${url}</span>
+              <span class="file-meta">Playwright launching browser to capture page...</span>
+            </div>
+          </div>
+        </div>
+      `;
+      assetsList.insertAdjacentHTML('afterbegin', cardHtml);
+      noAssets.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/capture', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, formatType })
+        });
+        const result = await res.json();
+
+        if (result.status === 'success') {
+          updateFileCard(cardId, result.data, result.message?.includes('Duplicate'));
+        } else {
+          document.getElementById(cardId).querySelector('.file-meta').innerText = 'Capture failed: ' + result.message;
+          document.getElementById(cardId).querySelector('.file-meta').style.color = 'var(--danger)';
+        }
+      } catch (error) {
+        document.getElementById(cardId).querySelector('.file-meta').innerText = 'Network error during capture';
+        document.getElementById(cardId).querySelector('.file-meta').style.color = 'var(--danger)';
+      } finally {
+        btn.innerText = 'Capture Page';
+        btn.disabled = false;
+      }
+    });
+
+    // Inspect/Query File ID
+    document.getElementById('btn-inspect').addEventListener('click', async () => {
+      const fileId = document.getElementById('inspect-id').value.trim();
+      if (!fileId) return alert('Enter a file ID');
+
+      try {
+        const res = await fetch(`/api/file/${fileId}`);
+        const result = await res.json();
+
+        if (result.status === 'success') {
+          alert(JSON.stringify(result.data, null, 2));
+        } else {
+          alert('Error: ' + result.message);
+        }
+      } catch (error) {
+        alert('Query failed');
+      }
+    });
+
+    // Delete asset
+    async function deleteAsset(fileId) {
+      if (!confirm('Are you sure you want to delete this asset from self-hosted storage?')) return;
+
+      try {
+        const res = await fetch(`/api/file/${fileId}`, {
+          method: 'DELETE'
+        });
+        const result = await res.json();
+        if (result.status === 'success') {
+          document.getElementById(`file-${fileId}`).remove();
+          showToast('Asset deleted successfully');
+          if (assetsList.children.length === 1 && assetsList.firstElementChild.id === 'no-assets') {
+            noAssets.style.display = 'block';
+          }
+        } else {
+          alert('Delete failed: ' + result.message);
+        }
+      } catch (e) {
+        alert('Error deleting asset');
+      }
+    }
+
+    // Show Toast
+    function showToast(message) {
+      toast.innerText = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    // Copy to clipboard helper
+    function copyLink(url) {
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('Copied short URL to clipboard!');
+      });
+    }
+  </script>
+</body>
+</html>

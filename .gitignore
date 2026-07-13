@@ -1,0 +1,18 @@
+# Python virtual environments
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Node dependencies
+node_modules/
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+
+# Local storage and temporary files
+storage/
+temp/
+.DS_Store

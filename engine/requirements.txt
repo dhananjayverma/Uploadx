@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pymongo
+pillow
+playwright
+python-multipart
+pydantic-settings
+motor

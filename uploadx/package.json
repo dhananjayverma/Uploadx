@@ -1,0 +1,25 @@
+{
+  "name": "uploadx",
+  "version": "1.0.0",
+  "description": "Smart Uploader SDK & Middleware. Zero-disk, zero-RAM Busboy streaming parser forwarding files directly to the self-hosted FastAPI engine.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "busboy": "^1.6.0",
+    "form-data": "^4.0.0"
+  },
+  "keywords": [
+    "busboy",
+    "streaming",
+    "upload",
+    "express",
+    "fastapi",
+    "compress",
+    "playwright"
+  ],
+  "author": "",
+  "license": "ISC"
+}
