@@ -1,4 +1,4 @@
-name: SmartUploader CI/CD
+name: UploadX CI/CD
 
 on:
   push:
@@ -42,14 +42,14 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: smart-uploader/package-lock.json
+        cache-dependency-path: uploadx/package.json
 
     - name: Install Node SDK Dependencies
       run: |
-        cd smart-uploader
+        cd uploadx
         npm install
 
     - name: Verify package structure
       run: |
-        cd smart-uploader
+        cd uploadx
         node -e "require('./index.js')"
