@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UploadX Direct Control Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #080b11;
+            --panel-bg: rgba(17, 22, 34, 0.75);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.15) 0px, transparent 50%);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2.5rem 1.5rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+        }
+
+        header h1 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 10%, var(--accent-blue) 60%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.025em;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        @media (min-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .full-width {
+                grid-column: span 2;
+            }
+        }
+
+        /* Glassmorphic Panel */
+        .card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .card h2 svg {
+            color: var(--accent-blue);
+        }
+
+        /* Inputs & Interactive elements */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input[type="text"], input[type="url"], input[type="number"], select {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.8rem 1.2rem;
+            color: var(--text-main);
+            font-family: var(--font-family);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        input[type="text"]:focus, input[type="url"]:focus, input[type="number"]:focus, select:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* File Upload Zone */
+        .file-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            padding: 2.5rem 1rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.01);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .file-zone:hover {
+            border-color: var(--accent-blue);
+            background: rgba(56, 189, 248, 0.03);
+        }
+
+        .file-zone svg {
+            width: 42px;
+            height: 42px;
+            color: var(--accent-blue);
+        }
+
+        .file-zone span {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .file-zone small {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Toggles */
+        .toggle-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+        }
+
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .toggle-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-purple);
+            cursor: pointer;
+        }
+
+        /* Button design */
+        button {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: #080b11;
+            border: none;
+            border-radius: 10px;
+            padding: 0.9rem;
+            font-family: var(--font-family);
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px -10px rgba(139, 92, 246, 0.5);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        /* Result Code Block */
+        .result {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #34d399;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        /* Interactive File Preview Box */
+        .preview-box {
+            display: none;
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 1.2rem;
+            background: rgba(255, 255, 255, 0.02);
+            text-align: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .preview-box img {
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-view {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-view:hover {
+            background: rgba(16, 185, 129, 0.25);
+            border-color: var(--accent-green);
+        }
+
+        .filename-display {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+            display: none;
+            text-align: center;
+        }
+
+        /* Stats Grid */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent-blue);
+            margin-top: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🚀 UploadX</h1>
+        <p>Your self-hosted dynamic file uploader engine. Test uploads, conversions, auto-compression, and browser webpage capture directly in this tester panel.</p>
+    </header>
+
+    <div class="dashboard-grid">
+
+        <!-- 1. Upload Card -->
+        <div class="card">
+            <h2>
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                1. Stream Upload File
+            </h2>
+            <div class="file-zone" id="file-zone">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                <span id="zone-text">Click to choose a file or drag here</span>
+                <small>Supports Images, Videos, PDFs, Text</small>
+                <input type="file" id="file-input">
+            </div>
+            <div class="filename-display" id="file-name-info"></div>
+
+            <div class="toggle-container">
+                <label class="toggle-item">
+                    <input type="checkbox" id="compress" checked> Compress File
+                </label>
+                <label class="toggle-item">
+                    <input type="checkbox" id="autoFormat" checked> Convert to WebP
+                </label>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="upload-expiry">Expires (Minutes)</label>
+                    <input type="number" id="upload-expiry" placeholder="Never" min="1">
+                </div>
+                <div class="form-group" style="justify-content: flex-end;">
+                    <label class="toggle-item" style="padding-bottom: 12px;">
+                        <input type="checkbox" id="upload-burn"> Burn-On-Read
+                    </label>
+                </div>
+            </div>
+
+            <button id="upload-btn">Upload to Engine</button>
+            <div class="result" id="upload-result"></div>
+            <div class="preview-box" id="upload-preview-box"></div>
+        </div>
+
+        <!-- 2. Capture Card -->
+        <div class="card">
+            <h2>
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                2. Capture Webpage (Playwright)
+            </h2>
+            <div class="form-group">
+                <label for="url-input">Target Website URL</label>
+                <input type="url" id="url-input" placeholder="https://example.com" value="https://news.ycombinator.com">
+            </div>
+            <div class="form-group">
+                <label for="format-type">Format Output</label>
+                <select id="format-type">
+                    <option value="screenshot">PNG Screenshot</option>
+                    <option value="pdf">A4 PDF Document</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="capture-expiry">Expires (Minutes)</label>
+                    <input type="number" id="capture-expiry" placeholder="Never" min="1">
+                </div>
+                <div class="form-group" style="justify-content: flex-end;">
+                    <label class="toggle-item" style="padding-bottom: 12px;">
+                        <input type="checkbox" id="capture-burn"> Burn-On-Read
+                    </label>
+                </div>
+            </div>
+
+            <button id="capture-btn">Capture Page</button>
+            <div class="result" id="capture-result"></div>
+            <div class="preview-box" id="capture-preview-box"></div>
+        </div>
+
+        <!-- 3. Inspect & CDN Card -->
+        <div class="card full-width">
+            <h2>
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                3. Query & View Asset / Dynamic Image CDN
+            </h2>
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: end;">
+                <div class="form-group" style="width: 100%;">
+                    <label for="inspect-id">Asset Short ID</label>
+                    <input type="text" id="inspect-id" placeholder="Enter short ID (e.g. abc12345)">
+                </div>
+                <button id="inspect-btn" style="height: 48px; padding: 0 1.5rem;">Query ID</button>
+            </div>
+
+            <!-- CDN controls -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                <div class="form-group">
+                    <label for="cdn-w">Width (px)</label>
+                    <input type="number" id="cdn-w" placeholder="Auto">
+                </div>
+                <div class="form-group">
+                    <label for="cdn-h">Height (px)</label>
+                    <input type="number" id="cdn-h" placeholder="Auto">
+                </div>
+                <div class="form-group">
+                    <label for="cdn-q">Quality (1-100)</label>
+                    <input type="number" id="cdn-q" placeholder="Default" min="1" max="100">
+                </div>
+            </div>
+
+            <div class="result" id="inspect-result"></div>
+            <div class="preview-box" id="inspect-preview-box"></div>
+        </div>
+
+        <!-- 4. Dashboard Stats Card -->
+        <div class="card full-width">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.003 9.003 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+                    4. Engine Storage Analytics
+                </h2>
+                <button id="refresh-stats-btn" style="padding: 0.5rem 1rem; font-size: 0.8rem;">🔄 Refresh</button>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-label">Total Files</div>
+                    <div class="stat-value" id="stat-total-files">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Capacity</div>
+                    <div class="stat-value" id="stat-total-size">0 KB</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Images Count</div>
+                    <div class="stat-value" id="stat-images-count">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Videos Count</div>
+                    <div class="stat-value" id="stat-videos-count">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Docs Count</div>
+                    <div class="stat-value" id="stat-docs-count">0</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const ENGINE_URL = 'http://localhost:8000';
+
+        // Helper to format bytes
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Helper to update file selection visual
+        const fileZone = document.getElementById('file-zone');
+        const fileInput = document.getElementById('file-input');
+        const fileNameInfo = document.getElementById('file-name-info');
+
+        fileZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                fileNameInfo.style.display = 'block';
+                fileNameInfo.textContent = `Selected: ${fileInput.files[0].name}`;
+                document.getElementById('zone-text').textContent = "File Selected";
+            }
+        });
+
+        // Helper to render previews
+        function showPreview(boxId, fileUrl, mimeType) {
+            const box = document.getElementById(boxId);
+            box.style.display = 'flex';
+            box.innerHTML = '';
+
+            if (mimeType && mimeType.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = fileUrl;
+                box.appendChild(img);
+            }
+
+            const openLink = document.createElement('a');
+            openLink.href = fileUrl;
+            openLink.target = '_blank';
+            openLink.className = 'btn-view';
+            openLink.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg> View Live Resource`;
+            box.appendChild(openLink);
+        }
+
+        // Refresh Stats Logic
+        async function refreshStats() {
+            try {
+                const res = await fetch(`${ENGINE_URL}/api/stats`);
+                const result = await res.json();
+                if (res.ok && result.status === 'success') {
+                    const stats = result.data;
+                    document.getElementById('stat-total-files').textContent = stats.total_files;
+                    document.getElementById('stat-total-size').textContent = formatBytes(stats.total_size_bytes);
+                    
+                    document.getElementById('stat-images-count').textContent = stats.categories.images?.count || 0;
+                    document.getElementById('stat-videos-count').textContent = stats.categories.videos?.count || 0;
+                    document.getElementById('stat-docs-count').textContent = stats.categories.docs?.count || 0;
+                }
+            } catch (err) {
+                console.error("Failed to load statistics: ", err);
+            }
+        }
+
+        // Run stats on load
+        window.addEventListener('load', refreshStats);
+        document.getElementById('refresh-stats-btn').addEventListener('click', refreshStats);
+
+        // 1. Upload logic
+        document.getElementById('upload-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('upload-btn');
+            const resultBox = document.getElementById('upload-result');
+            const previewBox = document.getElementById('upload-preview-box');
+
+            if (!fileInput.files.length) {
+                alert("Please select a file first");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Uploading...';
+            resultBox.style.display = 'none';
+            previewBox.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('compress', document.getElementById('compress').checked);
+            formData.append('autoFormat', document.getElementById('autoFormat').checked);
+            
+            const expiry = document.getElementById('upload-expiry').value;
+            if (expiry) formData.append('expires_in_mins', expiry);
+            
+            formData.append('burn_on_read', document.getElementById('upload-burn').checked);
+
+            try {
+                const res = await fetch(`${ENGINE_URL}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                resultBox.style.display = 'block';
+                resultBox.style.color = res.ok ? '#34d399' : '#f87171';
+                resultBox.textContent = JSON.stringify(data, null, 2);
+
+                if (res.ok && data.status === 'success') {
+                    showPreview('upload-preview-box', data.data.url, data.data.mime_type);
+                    refreshStats();
+                }
+            } catch (err) {
+                resultBox.style.display = 'block';
+                resultBox.style.color = '#f87171';
+                resultBox.textContent = 'Connection Error: Make sure FastAPI engine is running on port 8000';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Upload to Engine';
+            }
+        });
+
+        // 2. Capture logic
+        document.getElementById('capture-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('capture-btn');
+            const resultBox = document.getElementById('capture-result');
+            const previewBox = document.getElementById('capture-preview-box');
+            const url = document.getElementById('url-input').value.trim();
+            const format_type = document.getElementById('format-type').value;
+
+            if (!url) {
+                alert("Please enter a URL");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Capturing page...';
+            resultBox.style.display = 'none';
+            previewBox.style.display = 'none';
+
+            const payload = { url, format_type };
+            const expiry = document.getElementById('capture-expiry').value;
+            if (expiry) payload.expires_in_mins = parseInt(expiry);
+            payload.burn_on_read = document.getElementById('capture-burn').checked;
+
+            try {
+                const res = await fetch(`${ENGINE_URL}/capture`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                resultBox.style.display = 'block';
+                resultBox.style.color = res.ok ? '#34d399' : '#f87171';
+                resultBox.textContent = JSON.stringify(data, null, 2);
+
+                if (res.ok && data.status === 'success') {
+                    showPreview('capture-preview-box', data.data.url, data.data.mime_type);
+                    refreshStats();
+                }
+            } catch (err) {
+                resultBox.style.display = 'block';
+                resultBox.style.color = '#f87171';
+                resultBox.textContent = 'Connection Error: Make sure FastAPI engine is running on port 8000';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Capture Page';
+            }
+        });
+
+        // 3. Query / Inspect logic (incorporates CDN parameters)
+        document.getElementById('inspect-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('inspect-btn');
+            const resultBox = document.getElementById('inspect-result');
+            const previewBox = document.getElementById('inspect-preview-box');
+            const fileId = document.getElementById('inspect-id').value.trim();
+
+            if (!fileId) {
+                alert("Please enter an ID");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Searching...';
+            resultBox.style.display = 'none';
+            previewBox.style.display = 'none';
+
+            try {
+                // First get metadata
+                const res = await fetch(`${ENGINE_URL}/file/${fileId}`);
+                const data = await res.json();
+                resultBox.style.display = 'block';
+                resultBox.style.color = res.ok ? '#34d399' : '#f87171';
+                resultBox.textContent = JSON.stringify(data, null, 2);
+
+                if (res.ok && data.status === 'success') {
+                    const fileData = data.data;
+
+                    // Build CDN URL if width/height/quality inputs are present
+                    const w = document.getElementById('cdn-w').value;
+                    const h = document.getElementById('cdn-h').value;
+                    const q = document.getElementById('cdn-q').value;
+
+                    let cdnUrl = `${ENGINE_URL}/f/${fileId}`;
+                    const params = [];
+                    if (w) params.push(`w=${w}`);
+                    if (h) params.push(`h=${h}`);
+                    if (q) params.push(`q=${q}`);
+
+                    if (params.length > 0) {
+                        cdnUrl += `?${params.join('&')}`;
+                    }
+
+                    showPreview('inspect-preview-box', cdnUrl, fileData.mime_type);
+                }
+            } catch (err) {
+                resultBox.style.display = 'block';
+                resultBox.style.color = '#f87171';
+                resultBox.textContent = 'Connection Error: Make sure FastAPI engine is running on port 8000';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Query ID';
+            }
+        });
+    </script>
+</body>
+</html>

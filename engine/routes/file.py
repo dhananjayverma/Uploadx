@@ -3,7 +3,7 @@ import shutil
 import hashlib
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from config import settings
 from services import storage, db, compressor, automation
@@ -15,8 +15,13 @@ async def upload_file(
     file: UploadFile = File(...),
     compress: bool = Form(True),
     autoFormat: bool = Form(True),
-    maxSize: str = Form(None)  # e.g., "100MB" (Node.js layer will also handle validation)
+    maxSize: str = Form(None),  # e.g., "100MB" (Node.js layer will also handle validation)
+    expires_in_mins: int = Form(None),
+    burn_on_read: bool = Form(False)
 ):
+    expires_at = None
+    if expires_in_mins:
+        expires_at = (datetime.utcnow() + timedelta(minutes=expires_in_mins)).isoformat()
     # Read entire file into memory for hashing and duplicate check
     content = await file.read()
     
@@ -136,7 +141,9 @@ async def upload_file(
         "category": category,
         "path": f"{category}/{file_id}{final_ext}",
         "url": short_url,
-        "created_at": datetime.utcnow().isoformat()
+        "created_at": datetime.utcnow().isoformat(),
+        "expires_at": expires_at,
+        "burn_on_read": burn_on_read
     }
     
     await db.save_file_metadata(metadata)
@@ -157,15 +164,92 @@ async def get_metadata(file_id: str):
     }
 
 @router.get("/f/{file_id}")
-async def serve_file(file_id: str):
+async def serve_file(
+    file_id: str,
+    w: int = None, # width
+    h: int = None, # height
+    q: int = None  # quality (1-100)
+):
     metadata = await db.get_file_metadata(file_id)
     if not metadata:
         raise HTTPException(status_code=404, detail="File not found")
         
+    # Check Expiry
+    if metadata.get("expires_at"):
+        try:
+            expires_at = datetime.fromisoformat(metadata["expires_at"])
+            if datetime.utcnow() > expires_at:
+                # File has expired! Clean it up from disk and DB
+                storage.delete_physical_file(metadata["category"], metadata["filename"])
+                await db.delete_file_metadata(file_id)
+                raise HTTPException(status_code=410, detail="File link has expired")
+        except Exception as e:
+            if isinstance(e, HTTPException):
+                raise e
+            pass # Ignore parsing exceptions and proceed
+
     filepath = os.path.join(settings.STORAGE_ROOT, metadata["path"])
     if not os.path.exists(filepath):
         raise HTTPException(status_code=404, detail="Physical file not found on disk")
-        
+
+    # Burn-on-Read handler
+    is_burn = metadata.get("burn_on_read", False)
+
+    # Dynamic Image CDN
+    is_image = metadata.get("mime_type", "").startswith("image/")
+    if is_image and (w or h or q):
+        try:
+            # Process the image on-the-fly and return a streaming response
+            from PIL import Image
+            import io
+            from fastapi.responses import StreamingResponse
+
+            img = Image.open(filepath)
+            img_format = img.format or "WEBP"
+
+            # Resize logic preserving aspect ratio if only width or height is provided
+            if w or h:
+                width = w or img.width
+                height = h or img.height
+                if w and not h:
+                    aspect = img.height / img.width
+                    height = int(w * aspect)
+                elif h and not w:
+                    aspect = img.width / img.height
+                    width = int(h * aspect)
+                
+                img = img.resize((width, height), Image.Resampling.LANCZOS)
+
+            # Quality compression and saving
+            img_io = io.BytesIO()
+            save_kwargs = {"format": img_format}
+            if q is not None:
+                quality_val = max(1, min(100, q))
+                if img_format.upper() in ["JPEG", "JPG", "WEBP"]:
+                    save_kwargs["quality"] = quality_val
+            
+            img.save(img_io, **save_kwargs)
+            img_io.seek(0)
+
+            # Clean up immediately if marked as burn-on-read
+            if is_burn:
+                storage.delete_physical_file(metadata["category"], metadata["filename"])
+                await db.delete_file_metadata(file_id)
+
+            return StreamingResponse(img_io, media_type=metadata["mime_type"])
+        except Exception as e:
+            print(f"CDN processing failed: {e}")
+            pass
+
+    # If it is burn-on-read, retrieve bytes first, delete, and return
+    if is_burn:
+        with open(filepath, "rb") as f:
+            file_bytes = f.read()
+        storage.delete_physical_file(metadata["category"], metadata["filename"])
+        await db.delete_file_metadata(file_id)
+        from fastapi.responses import Response
+        return Response(content=file_bytes, media_type=metadata["mime_type"])
+
     return FileResponse(filepath, media_type=metadata["mime_type"], filename=metadata["filename"])
 
 @router.delete("/file/{file_id}")
@@ -185,13 +269,26 @@ async def delete_file(file_id: str):
         "message": f"File {file_id} deleted successfully"
     }
 
+@router.get("/api/stats")
+async def get_stats():
+    try:
+        stats = await db.get_storage_stats()
+        return {
+            "status": "success",
+            "data": stats
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch stats: {str(e)}")
+
 from pydantic import BaseModel
 
 class CaptureRequest(BaseModel):
     url: str
     format_type: str = "screenshot" # screenshot or pdf
+    expires_in_mins: int = None
+    burn_on_read: bool = False
 
-async def handle_capture(url: str, format_type: str):
+async def handle_capture(url: str, format_type: str, expires_in_mins: int = None, burn_on_read: bool = False):
     try:
         temp_path = await automation.capture_url(url, format_type)
         
@@ -228,6 +325,10 @@ async def handle_capture(url: str, format_type: str):
         final_size = os.path.getsize(dest_path)
         short_url = f"{settings.PUBLIC_BASE_URL}/f/{file_id}"
         
+        expires_at = None
+        if expires_in_mins:
+            expires_at = (datetime.utcnow() + timedelta(minutes=expires_in_mins)).isoformat()
+
         metadata = {
             "id": file_id,
             "filename": dest_filename,
@@ -238,7 +339,9 @@ async def handle_capture(url: str, format_type: str):
             "category": category,
             "path": f"{category}/{dest_filename}",
             "url": short_url,
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.utcnow().isoformat(),
+            "expires_at": expires_at,
+            "burn_on_read": burn_on_read
         }
         
         await db.save_file_metadata(metadata)
@@ -253,11 +356,13 @@ async def handle_capture(url: str, format_type: str):
 @router.post("/automation/capture")
 async def capture_page(
     url: str = Form(...),
-    format_type: str = Form("screenshot") # screenshot or pdf
+    format_type: str = Form("screenshot"), # screenshot or pdf
+    expires_in_mins: int = Form(None),
+    burn_on_read: bool = Form(False)
 ):
-    return await handle_capture(url, format_type)
+    return await handle_capture(url, format_type, expires_in_mins, burn_on_read)
 
 @router.post("/capture")
 async def capture_page_json(request: CaptureRequest):
-    return await handle_capture(request.url, request.format_type)
+    return await handle_capture(request.url, request.format_type, request.expires_in_mins, request.burn_on_read)
 
