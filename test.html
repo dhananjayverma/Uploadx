@@ -40,7 +40,6 @@
             flex-direction: column;
             align-items: center;
             padding: 2.5rem 1.5rem;
-            background: #000;
         }
 
         header {
@@ -341,13 +340,107 @@
             font-weight: 700;
             text-transform: uppercase;
         }
+
+        /* Upload History Log Table */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .history-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .history-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .history-details {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-public {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+        }
+
+        .badge-private {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--accent-purple);
+        }
+
+        .badge-locked {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        /* Toast Popup */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: #080b11;
+            font-weight: 700;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
 
     <header>
         <h1>🚀 UploadX</h1>
-        <p>Your self-hosted dynamic file uploader engine. Test uploads, conversions, auto-compression, and browser webpage capture directly in this tester panel.</p>
+        <p>Your self-hosted dynamic file uploader engine. Test uploads, access control, passwords, auto-compression, and webpage capture directly in this tester panel.</p>
     </header>
 
     <div class="dashboard-grid">
@@ -387,6 +480,21 @@
                 </div>
             </div>
 
+            <!-- Access Control & Password -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                <div class="form-group">
+                    <label for="upload-access">Access Level</label>
+                    <select id="upload-access">
+                        <option value="public">🌐 Public</option>
+                        <option value="private">🔒 Private</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="upload-password">Lock Password</label>
+                    <input type="text" id="upload-password" placeholder="Optional">
+                </div>
+            </div>
+
             <button id="upload-btn">Upload to Engine</button>
             <div class="result" id="upload-result"></div>
             <div class="preview-box" id="upload-preview-box"></div>
@@ -422,6 +530,21 @@
                 </div>
             </div>
 
+            <!-- Access Control & Password -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                <div class="form-group">
+                    <label for="capture-access">Access Level</label>
+                    <select id="capture-access">
+                        <option value="public">🌐 Public</option>
+                        <option value="private">🔒 Private</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="capture-password">Lock Password</label>
+                    <input type="text" id="capture-password" placeholder="Optional">
+                </div>
+            </div>
+
             <button id="capture-btn">Capture Page</button>
             <div class="result" id="capture-result"></div>
             <div class="preview-box" id="capture-preview-box"></div>
@@ -441,8 +564,20 @@
                 <button id="inspect-btn" style="height: 48px; padding: 0 1.5rem;">Query ID</button>
             </div>
 
+            <!-- Security Auth params -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                <div class="form-group">
+                    <label for="inspect-password">Enter Password (if locked)</label>
+                    <input type="text" id="inspect-password" placeholder="Password">
+                </div>
+                <div class="form-group">
+                    <label for="inspect-token">Enter Bearer Token (if private)</label>
+                    <input type="text" id="inspect-token" placeholder="Bearer Token">
+                </div>
+            </div>
+
             <!-- CDN controls -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
                 <div class="form-group">
                     <label for="cdn-w">Width (px)</label>
                     <input type="number" id="cdn-w" placeholder="Auto">
@@ -495,10 +630,37 @@
             </div>
         </div>
 
+        <!-- 5. Active Session Uploads Card -->
+        <div class="card full-width">
+            <h2>
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                5. Session Upload History
+            </h2>
+            <div class="history-list" id="history-list">
+                <p id="no-history-text" style="color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No uploads performed in this session yet.</p>
+            </div>
+        </div>
+
     </div>
+
+    <!-- Alert Toast -->
+    <div class="toast" id="toast">Link copied to clipboard!</div>
 
     <script>
         const ENGINE_URL = 'http://localhost:8000';
+
+        // Keep track of uploaded files in this session
+        const sessionHistory = [];
+
+        // Toast Helper
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
 
         // Helper to format bytes
         function formatBytes(bytes) {
@@ -542,6 +704,85 @@
             openLink.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg> View Live Resource`;
             box.appendChild(openLink);
         }
+
+        // Add item to history log
+        function addToHistory(fileData) {
+            sessionHistory.push(fileData);
+            renderHistory();
+        }
+
+        // Render history list
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            if (sessionHistory.length === 0) {
+                list.innerHTML = `<p id="no-history-text" style="color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No uploads performed in this session yet.</p>`;
+                return;
+            }
+
+            list.innerHTML = '';
+            sessionHistory.slice().reverse().forEach((item, index) => {
+                const actualIndex = sessionHistory.length - 1 - index;
+                const isPrivate = item.access === 'private';
+                const isLocked = !!item.password;
+                
+                const badges = [];
+                badges.push(`<span class="badge ${isPrivate ? 'badge-private' : 'badge-public'}">${item.access}</span>`);
+                if (isLocked) badges.push(`<span class="badge badge-locked">Locked</span>`);
+                if (item.burn_on_read) badges.push(`<span class="badge badge-locked">Burn</span>`);
+
+                const expiresLabel = item.expires_at ? `Exp: ${new Date(item.expires_at).toLocaleTimeString()}` : 'Permanent';
+
+                const itemHtml = `
+                    <div class="history-item" id="hist-${item.id}">
+                        <div class="history-meta">
+                            <div class="history-title">${item.original_name || item.filename}</div>
+                            <div class="history-details">
+                                <span>ID: <strong>${item.id}</strong></span>
+                                <span>•</span>
+                                <span>Size: ${formatBytes(item.size)}</span>
+                                <span>•</span>
+                                <span>${expiresLabel}</span>
+                                <span>•</span>
+                                ${badges.join(' ')}
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <button class="btn btn-action" style="background: var(--accent-blue); color: #080b11;" onclick="copyHistoryLink('${item.url}')">📋 Copy</button>
+                            <button class="btn btn-action" style="background: var(--accent-red); color: white;" onclick="deleteHistoryItem('${item.id}', ${actualIndex})">🗑️ Delete</button>
+                        </div>
+                    </div>
+                `;
+                list.insertAdjacentHTML('beforeend', itemHtml);
+            });
+        }
+
+        // Copy history link helper
+        window.copyHistoryLink = function(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast("Short URL copied!");
+            });
+        };
+
+        // Delete history item helper
+        window.deleteHistoryItem = async function(id, indexInArray) {
+            if (!confirm(`Are you sure you want to delete asset ${id}?`)) return;
+            try {
+                const res = await fetch(`${ENGINE_URL}/file/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    sessionHistory.splice(indexInArray, 1);
+                    renderHistory();
+                    refreshStats();
+                    showToast("Asset deleted from storage");
+                } else {
+                    alert(`Delete failed: ${data.detail || 'Unknown error'}`);
+                }
+            } catch (err) {
+                alert("Failed to connect to backend engine for deletion.");
+            }
+        };
 
         // Refresh Stats Logic
         async function refreshStats() {
@@ -591,6 +832,10 @@
             if (expiry) formData.append('expires_in_mins', expiry);
             
             formData.append('burn_on_read', document.getElementById('upload-burn').checked);
+            formData.append('access', document.getElementById('upload-access').value);
+            
+            const pwd = document.getElementById('upload-password').value.trim();
+            if (pwd) formData.append('password', pwd);
 
             try {
                 const res = await fetch(`${ENGINE_URL}/upload`, {
@@ -604,6 +849,7 @@
 
                 if (res.ok && data.status === 'success') {
                     showPreview('upload-preview-box', data.data.url, data.data.mime_type);
+                    addToHistory(data.data);
                     refreshStats();
                 }
             } catch (err) {
@@ -638,6 +884,10 @@
             const expiry = document.getElementById('capture-expiry').value;
             if (expiry) payload.expires_in_mins = parseInt(expiry);
             payload.burn_on_read = document.getElementById('capture-burn').checked;
+            payload.access = document.getElementById('capture-access').value;
+            
+            const pwd = document.getElementById('capture-password').value.trim();
+            if (pwd) payload.password = pwd;
 
             try {
                 const res = await fetch(`${ENGINE_URL}/capture`, {
@@ -652,6 +902,7 @@
 
                 if (res.ok && data.status === 'success') {
                     showPreview('capture-preview-box', data.data.url, data.data.mime_type);
+                    addToHistory(data.data);
                     refreshStats();
                 }
             } catch (err) {
@@ -664,7 +915,7 @@
             }
         });
 
-        // 3. Query / Inspect logic (incorporates CDN parameters)
+        // 3. Query / Inspect logic (incorporates CDN parameters & Security checks)
         document.getElementById('inspect-btn').addEventListener('click', async () => {
             const btn = document.getElementById('inspect-btn');
             const resultBox = document.getElementById('inspect-result');
@@ -681,9 +932,13 @@
             resultBox.style.display = 'none';
             previewBox.style.display = 'none';
 
+            const pwd = document.getElementById('inspect-password').value.trim();
+            const token = document.getElementById('inspect-token').value.trim();
+
             try {
-                // First get metadata
-                const res = await fetch(`${ENGINE_URL}/file/${fileId}`);
+                // Fetch metadata
+                const metaUrl = new URL(`${ENGINE_URL}/file/${fileId}`);
+                const res = await fetch(metaUrl);
                 const data = await res.json();
                 resultBox.style.display = 'block';
                 resultBox.style.color = res.ok ? '#34d399' : '#f87171';
@@ -692,16 +947,19 @@
                 if (res.ok && data.status === 'success') {
                     const fileData = data.data;
 
-                    // Build CDN URL if width/height/quality inputs are present
+                    // Build CDN serving URL
+                    let cdnUrl = `${ENGINE_URL}/f/${fileId}`;
+                    const params = [];
+                    
                     const w = document.getElementById('cdn-w').value;
                     const h = document.getElementById('cdn-h').value;
                     const q = document.getElementById('cdn-q').value;
 
-                    let cdnUrl = `${ENGINE_URL}/f/${fileId}`;
-                    const params = [];
                     if (w) params.push(`w=${w}`);
                     if (h) params.push(`h=${h}`);
                     if (q) params.push(`q=${q}`);
+                    if (pwd) params.push(`password=${pwd}`);
+                    if (token) params.push(`token=${token}`);
 
                     if (params.length > 0) {
                         cdnUrl += `?${params.join('&')}`;

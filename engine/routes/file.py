@@ -1,7 +1,7 @@
 import os
 import shutil
 import hashlib
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Header
 from fastapi.responses import FileResponse, JSONResponse
 from datetime import datetime, timedelta
 
@@ -17,7 +17,9 @@ async def upload_file(
     autoFormat: bool = Form(True),
     maxSize: str = Form(None),  # e.g., "100MB" (Node.js layer will also handle validation)
     expires_in_mins: int = Form(None),
-    burn_on_read: bool = Form(False)
+    burn_on_read: bool = Form(False),
+    access: str = Form("public"),
+    password: str = Form(None)
 ):
     expires_at = None
     if expires_in_mins:
@@ -143,7 +145,9 @@ async def upload_file(
         "url": short_url,
         "created_at": datetime.utcnow().isoformat(),
         "expires_at": expires_at,
-        "burn_on_read": burn_on_read
+        "burn_on_read": burn_on_read,
+        "access": access,
+        "password": password
     }
     
     await db.save_file_metadata(metadata)
@@ -168,11 +172,30 @@ async def serve_file(
     file_id: str,
     w: int = None, # width
     h: int = None, # height
-    q: int = None  # quality (1-100)
+    q: int = None,  # quality (1-100)
+    password: str = None,
+    token: str = None,
+    authorization: str = Header(None)
 ):
     metadata = await db.get_file_metadata(file_id)
     if not metadata:
         raise HTTPException(status_code=404, detail="File not found")
+
+    # 1. Access Control Check (Public vs Private)
+    if metadata.get("access") == "private":
+        bearer_token = None
+        if authorization and authorization.lower().startswith("bearer "):
+            bearer_token = authorization.split(" ")[1]
+        
+        client_token = token or bearer_token
+        if client_token != settings.SECRET_KEY:
+            raise HTTPException(status_code=403, detail="Access forbidden: Invalid or missing authentication token")
+
+    # 2. Password Protection Check
+    expected_password = metadata.get("password")
+    if expected_password:
+        if password != expected_password:
+            raise HTTPException(status_code=401, detail="Access denied: Password protected resource")
         
     # Check Expiry
     if metadata.get("expires_at"):
@@ -287,8 +310,17 @@ class CaptureRequest(BaseModel):
     format_type: str = "screenshot" # screenshot or pdf
     expires_in_mins: int = None
     burn_on_read: bool = False
+    access: str = "public"
+    password: str = None
 
-async def handle_capture(url: str, format_type: str, expires_in_mins: int = None, burn_on_read: bool = False):
+async def handle_capture(
+    url: str,
+    format_type: str,
+    expires_in_mins: int = None,
+    burn_on_read: bool = False,
+    access: str = "public",
+    password: str = None
+):
     try:
         temp_path = await automation.capture_url(url, format_type)
         
@@ -341,7 +373,9 @@ async def handle_capture(url: str, format_type: str, expires_in_mins: int = None
             "url": short_url,
             "created_at": datetime.utcnow().isoformat(),
             "expires_at": expires_at,
-            "burn_on_read": burn_on_read
+            "burn_on_read": burn_on_read,
+            "access": access,
+            "password": password
         }
         
         await db.save_file_metadata(metadata)
@@ -358,11 +392,20 @@ async def capture_page(
     url: str = Form(...),
     format_type: str = Form("screenshot"), # screenshot or pdf
     expires_in_mins: int = Form(None),
-    burn_on_read: bool = Form(False)
+    burn_on_read: bool = Form(False),
+    access: str = Form("public"),
+    password: str = Form(None)
 ):
-    return await handle_capture(url, format_type, expires_in_mins, burn_on_read)
+    return await handle_capture(url, format_type, expires_in_mins, burn_on_read, access, password)
 
 @router.post("/capture")
 async def capture_page_json(request: CaptureRequest):
-    return await handle_capture(request.url, request.format_type, request.expires_in_mins, request.burn_on_read)
+    return await handle_capture(
+        request.url,
+        request.format_type,
+        request.expires_in_mins,
+        request.burn_on_read,
+        request.access,
+        request.password
+    )
 
