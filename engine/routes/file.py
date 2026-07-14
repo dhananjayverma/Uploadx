@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from datetime import datetime, timedelta
 
 from config import settings
-from services import storage, db, compressor, automation
+from services import storage, db, compressor, automation, stego
 
 router = APIRouter()
 
@@ -19,7 +19,8 @@ async def upload_file(
     expires_in_mins: int = Form(None),
     burn_on_read: bool = Form(False),
     access: str = Form("public"),
-    password: str = Form(None)
+    password: str = Form(None),
+    stego_text: str = Form(None)
 ):
     expires_at = None
     if expires_in_mins:
@@ -78,12 +79,27 @@ async def upload_file(
     final_path = None
     final_ext = ext
     mime_type = file.content_type
+    has_stego = False
     
     # Create final directory just in case
     category_dir = os.path.join(settings.STORAGE_ROOT, category)
     os.makedirs(category_dir, exist_ok=True)
     
-    if compress:
+    # Steganographic pixel lock (Image only)
+    if stego_text and category == "images":
+        # Force lossless PNG to preserve stego pixel bits
+        final_ext = ".png"
+        mime_type = "image/png"
+        dest_name = f"{file_id}{final_ext}"
+        dest_path = os.path.join(category_dir, dest_name)
+        success = stego.encode_text_in_image(temp_path, stego_text, dest_path)
+        if success:
+            final_path = dest_path
+            has_stego = True
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+                
+    if not final_path and compress:
         if category == "images" and autoFormat:
             final_ext = ".webp"
             mime_type = "image/webp"
@@ -122,7 +138,7 @@ async def upload_file(
         shutil.move(temp_path, dest_path)
         final_path = dest_path
     else:
-        # Clean up temp file since we compressed it to a new path
+        # Clean up temp file since we compressed/encoded it to a new path
         if os.path.exists(temp_path):
             os.remove(temp_path)
             
@@ -147,7 +163,8 @@ async def upload_file(
         "expires_at": expires_at,
         "burn_on_read": burn_on_read,
         "access": access,
-        "password": password
+        "password": password,
+        "has_stego": has_stego
     }
     
     await db.save_file_metadata(metadata)
@@ -162,6 +179,13 @@ async def get_metadata(file_id: str):
     metadata = await db.get_file_metadata(file_id)
     if not metadata:
         raise HTTPException(status_code=404, detail="File metadata not found")
+    
+    # If the file has a stego payload, decode it on the fly and return it
+    if metadata.get("has_stego"):
+        filepath = os.path.join(settings.STORAGE_ROOT, metadata["path"])
+        if os.path.exists(filepath):
+            metadata["stego_text"] = stego.decode_text_from_image(filepath)
+            
     return {
         "status": "success",
         "data": metadata
@@ -303,6 +327,17 @@ async def get_stats():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch stats: {str(e)}")
 
+@router.get("/api/files")
+async def get_files(category: str = None, search: str = None):
+    try:
+        files = await db.list_files(category, search)
+        return {
+            "status": "success",
+            "data": files
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to query files: {str(e)}")
+
 from pydantic import BaseModel
 
 class CaptureRequest(BaseModel):
@@ -312,6 +347,11 @@ class CaptureRequest(BaseModel):
     burn_on_read: bool = False
     access: str = "public"
     password: str = None
+    full_page: bool = True
+    color_scheme: str = "light"
+    delay: int = 0
+    width: int = 1920
+    height: int = 1080
 
 async def handle_capture(
     url: str,
@@ -319,10 +359,23 @@ async def handle_capture(
     expires_in_mins: int = None,
     burn_on_read: bool = False,
     access: str = "public",
-    password: str = None
+    password: str = None,
+    full_page: bool = True,
+    color_scheme: str = "light",
+    delay: int = 0,
+    width: int = 1920,
+    height: int = 1080
 ):
     try:
-        temp_path = await automation.capture_url(url, format_type)
+        temp_path = await automation.capture_url(
+            url=url,
+            format_type=format_type,
+            full_page=full_page,
+            color_scheme=color_scheme,
+            delay=delay,
+            width=width,
+            height=height
+        )
         
         # Open and hash file
         with open(temp_path, "rb") as f:
@@ -394,18 +447,31 @@ async def capture_page(
     expires_in_mins: int = Form(None),
     burn_on_read: bool = Form(False),
     access: str = Form("public"),
-    password: str = Form(None)
+    password: str = Form(None),
+    full_page: bool = Form(True),
+    color_scheme: str = Form("light"),
+    delay: int = Form(0),
+    width: int = Form(1920),
+    height: int = Form(1080)
 ):
-    return await handle_capture(url, format_type, expires_in_mins, burn_on_read, access, password)
+    return await handle_capture(
+        url, format_type, expires_in_mins, burn_on_read, access, password,
+        full_page, color_scheme, delay, width, height
+    )
 
 @router.post("/capture")
 async def capture_page_json(request: CaptureRequest):
     return await handle_capture(
-        request.url,
-        request.format_type,
-        request.expires_in_mins,
-        request.burn_on_read,
-        request.access,
-        request.password
+        url=request.url,
+        format_type=request.format_type,
+        expires_in_mins=request.expires_in_mins,
+        burn_on_read=request.burn_on_read,
+        access=request.access,
+        password=request.password,
+        full_page=request.full_page,
+        color_scheme=request.color_scheme,
+        delay=request.delay,
+        width=request.width,
+        height=request.height
     )
 

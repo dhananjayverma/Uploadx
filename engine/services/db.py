@@ -68,3 +68,21 @@ async def get_storage_stats() -> dict:
         "total_size_bytes": total_size,
         "categories": categories
     }
+
+async def list_files(category: str = None, search: str = None) -> list:
+    """
+    Retrieves metadata list for files with search filters.
+    """
+    query = {}
+    if category:
+        query["category"] = category
+    if search:
+        query["original_name"] = {"$regex": search, "$options": "i"}
+        
+    cursor = files_collection.find(query).sort("created_at", -1)
+    results = []
+    async for doc in cursor:
+        doc.pop("_id", None)
+        results.append(doc)
+    return results
+

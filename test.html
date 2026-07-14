@@ -44,7 +44,7 @@
 
         header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             max-width: 600px;
         }
 
@@ -64,21 +64,64 @@
             line-height: 1.6;
         }
 
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
+        /* Navigation Header Tabs */
+        .nav-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 0.4rem;
+            margin-bottom: 2rem;
             width: 100%;
-            max-width: 1100px;
+            max-width: 900px;
+            gap: 0.3rem;
+            flex-wrap: wrap;
         }
 
-        @media (min-width: 900px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            .full-width {
-                grid-column: span 2;
-            }
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 0.8rem 0.5rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 150px;
+        }
+
+        .tab-item:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .tab-item.active {
+            color: #080b11;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            box-shadow: 0 10px 20px -10px rgba(56, 189, 248, 0.4);
+        }
+
+        /* Show/hide panels */
+        .tab-panel {
+            display: none;
+            width: 100%;
+            max-width: 900px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-panel.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Glassmorphic Panel */
@@ -95,7 +138,7 @@
             gap: 1.5rem;
             position: relative;
             overflow: hidden;
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            width: 100%;
         }
 
         .card::before {
@@ -109,12 +152,14 @@
         }
 
         .card h2 {
-            font-size: 1.25rem;
-            font-weight: 700;
+            font-size: 1.4rem;
+            font-weight: 800;
             color: #ffffff;
             display: flex;
             align-items: center;
             gap: 0.6rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
         }
 
         .card h2 svg {
@@ -159,7 +204,7 @@
         .file-zone {
             border: 2px dashed rgba(255, 255, 255, 0.15);
             border-radius: 14px;
-            padding: 2.5rem 1rem;
+            padding: 3rem 1rem;
             text-align: center;
             background: rgba(255, 255, 255, 0.01);
             cursor: pointer;
@@ -176,14 +221,14 @@
         }
 
         .file-zone svg {
-            width: 42px;
-            height: 42px;
+            width: 48px;
+            height: 48px;
             color: var(--accent-blue);
         }
 
         .file-zone span {
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
         .file-zone small {
@@ -225,7 +270,7 @@
             color: #080b11;
             border: none;
             border-radius: 10px;
-            padding: 0.9rem;
+            padding: 1rem;
             font-family: var(--font-family);
             font-weight: 700;
             font-size: 0.95rem;
@@ -247,19 +292,59 @@
             transform: translateY(1px);
         }
 
+        /* Parallel Upload queue */
+        .upload-queue {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .queue-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .queue-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            height: 8px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            height: 100%;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
         /* Result Code Block */
         .result {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            padding: 1rem;
+            padding: 1.2rem;
             font-family: 'Courier New', Courier, monospace;
             font-size: 0.85rem;
             white-space: pre-wrap;
             word-break: break-all;
             color: #34d399;
             display: none;
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
         }
 
@@ -278,7 +363,7 @@
 
         .preview-box img {
             max-width: 100%;
-            max-height: 220px;
+            max-height: 350px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
@@ -315,30 +400,217 @@
         /* Stats Grid */
         .stats-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.2rem;
         }
 
         .stat-card {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 1rem;
+            padding: 1.2rem;
             text-align: center;
         }
 
         .stat-value {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 800;
             color: var(--accent-blue);
             margin-top: 0.25rem;
         }
 
         .stat-label {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
             font-weight: 700;
             text-transform: uppercase;
+        }
+
+        /* File Explorer Grid */
+        .explorer-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .explorer-filters {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--accent-blue);
+            color: #080b11;
+            border-color: var(--accent-blue);
+        }
+
+        .explorer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        .explorer-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .explorer-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .card-preview {
+            background: rgba(0, 0, 0, 0.2);
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-preview svg {
+            width: 48px;
+            height: 48px;
+            color: var(--text-muted);
+        }
+
+        .card-content {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-badges {
+            display: flex;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+            margin-top: 0.25rem;
+        }
+
+        .card-actions {
+            border-top: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.3rem;
+            background: rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .action-icon-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            font-size: 0.75rem;
+            font-weight: 700;
+            gap: 0.25rem;
+            min-width: 60px;
+        }
+
+        .action-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* CDN Editor Modal Panel */
+        .cdn-modal {
+            display: none;
+            background: rgba(17, 22, 34, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            flex-direction: column;
+            gap: 1.2rem;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .cdn-modal-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+        }
+
+        @media (min-width: 600px) {
+            .cdn-modal-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .cdn-preview-pane {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            padding: 1rem;
+        }
+
+        .cdn-preview-pane img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 6px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
         /* Upload History Log Table */
@@ -363,12 +635,12 @@
         .history-meta {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 0.4rem;
         }
 
         .history-title {
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
         .history-details {
@@ -376,6 +648,7 @@
             color: var(--text-muted);
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .badge {
@@ -407,9 +680,9 @@
         }
 
         .btn-action {
-            padding: 0.4rem 0.8rem;
+            padding: 0.5rem 1rem;
             font-size: 0.8rem;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: 600;
         }
 
@@ -443,201 +716,272 @@
         <p>Your self-hosted dynamic file uploader engine. Test uploads, access control, passwords, auto-compression, and webpage capture directly in this tester panel.</p>
     </header>
 
-    <div class="dashboard-grid">
+    <!-- 1. Header Navigation Tabs -->
+    <nav class="nav-tabs">
+        <div class="tab-item active" data-tab="upload-panel">📤 Bulk Uploader</div>
+        <div class="tab-item" data-tab="capture-panel">🌐 Web Capture</div>
+        <div class="tab-item" data-tab="cdn-panel">🔍 Asset Explorer</div>
+        <div class="tab-item" data-tab="stats-panel">📊 Storage Stats</div>
+        <div class="tab-item" data-tab="history-panel">📋 Upload History</div>
+    </nav>
 
-        <!-- 1. Upload Card -->
-        <div class="card">
-            <h2>
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                1. Stream Upload File
-            </h2>
-            <div class="file-zone" id="file-zone">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                <span id="zone-text">Click to choose a file or drag here</span>
-                <small>Supports Images, Videos, PDFs, Text</small>
-                <input type="file" id="file-input">
-            </div>
-            <div class="filename-display" id="file-name-info"></div>
+    <!-- Tab Panels Container -->
+    <div style="width: 100%; max-width: 900px;">
 
-            <div class="toggle-container">
-                <label class="toggle-item">
-                    <input type="checkbox" id="compress" checked> Compress File
-                </label>
-                <label class="toggle-item">
-                    <input type="checkbox" id="autoFormat" checked> Convert to WebP
-                </label>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div class="form-group">
-                    <label for="upload-expiry">Expires (Minutes)</label>
-                    <input type="number" id="upload-expiry" placeholder="Never" min="1">
-                </div>
-                <div class="form-group" style="justify-content: flex-end;">
-                    <label class="toggle-item" style="padding-bottom: 12px;">
-                        <input type="checkbox" id="upload-burn"> Burn-On-Read
-                    </label>
-                </div>
-            </div>
-
-            <!-- Access Control & Password -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                <div class="form-group">
-                    <label for="upload-access">Access Level</label>
-                    <select id="upload-access">
-                        <option value="public">🌐 Public</option>
-                        <option value="private">🔒 Private</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="upload-password">Lock Password</label>
-                    <input type="text" id="upload-password" placeholder="Optional">
-                </div>
-            </div>
-
-            <button id="upload-btn">Upload to Engine</button>
-            <div class="result" id="upload-result"></div>
-            <div class="preview-box" id="upload-preview-box"></div>
-        </div>
-
-        <!-- 2. Capture Card -->
-        <div class="card">
-            <h2>
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                2. Capture Webpage (Playwright)
-            </h2>
-            <div class="form-group">
-                <label for="url-input">Target Website URL</label>
-                <input type="url" id="url-input" placeholder="https://example.com" value="https://news.ycombinator.com">
-            </div>
-            <div class="form-group">
-                <label for="format-type">Format Output</label>
-                <select id="format-type">
-                    <option value="screenshot">PNG Screenshot</option>
-                    <option value="pdf">A4 PDF Document</option>
-                </select>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div class="form-group">
-                    <label for="capture-expiry">Expires (Minutes)</label>
-                    <input type="number" id="capture-expiry" placeholder="Never" min="1">
-                </div>
-                <div class="form-group" style="justify-content: flex-end;">
-                    <label class="toggle-item" style="padding-bottom: 12px;">
-                        <input type="checkbox" id="capture-burn"> Burn-On-Read
-                    </label>
-                </div>
-            </div>
-
-            <!-- Access Control & Password -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                <div class="form-group">
-                    <label for="capture-access">Access Level</label>
-                    <select id="capture-access">
-                        <option value="public">🌐 Public</option>
-                        <option value="private">🔒 Private</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="capture-password">Lock Password</label>
-                    <input type="text" id="capture-password" placeholder="Optional">
-                </div>
-            </div>
-
-            <button id="capture-btn">Capture Page</button>
-            <div class="result" id="capture-result"></div>
-            <div class="preview-box" id="capture-preview-box"></div>
-        </div>
-
-        <!-- 3. Inspect & CDN Card -->
-        <div class="card full-width">
-            <h2>
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                3. Query & View Asset / Dynamic Image CDN
-            </h2>
-            <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: end;">
-                <div class="form-group" style="width: 100%;">
-                    <label for="inspect-id">Asset Short ID</label>
-                    <input type="text" id="inspect-id" placeholder="Enter short ID (e.g. abc12345)">
-                </div>
-                <button id="inspect-btn" style="height: 48px; padding: 0 1.5rem;">Query ID</button>
-            </div>
-
-            <!-- Security Auth params -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                <div class="form-group">
-                    <label for="inspect-password">Enter Password (if locked)</label>
-                    <input type="text" id="inspect-password" placeholder="Password">
-                </div>
-                <div class="form-group">
-                    <label for="inspect-token">Enter Bearer Token (if private)</label>
-                    <input type="text" id="inspect-token" placeholder="Bearer Token">
-                </div>
-            </div>
-
-            <!-- CDN controls -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                <div class="form-group">
-                    <label for="cdn-w">Width (px)</label>
-                    <input type="number" id="cdn-w" placeholder="Auto">
-                </div>
-                <div class="form-group">
-                    <label for="cdn-h">Height (px)</label>
-                    <input type="number" id="cdn-h" placeholder="Auto">
-                </div>
-                <div class="form-group">
-                    <label for="cdn-q">Quality (1-100)</label>
-                    <input type="number" id="cdn-q" placeholder="Default" min="1" max="100">
-                </div>
-            </div>
-
-            <div class="result" id="inspect-result"></div>
-            <div class="preview-box" id="inspect-preview-box"></div>
-        </div>
-
-        <!-- 4. Dashboard Stats Card -->
-        <div class="card full-width">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+        <!-- Panel 1. Upload File -->
+        <div class="tab-panel active" id="upload-panel">
+            <div class="card">
                 <h2>
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.003 9.003 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
-                    4. Engine Storage Analytics
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    Bulk Parallel Uploader
                 </h2>
-                <button id="refresh-stats-btn" style="padding: 0.5rem 1rem; font-size: 0.8rem;">🔄 Refresh</button>
+                
+                <div class="file-zone" id="file-zone">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    <span id="zone-text">Click to choose files or drag here</span>
+                    <small>Supports multiple files in parallel (Images, Videos, PDFs, Text)</small>
+                    <input type="file" id="file-input" multiple>
+                </div>
+                <div class="filename-display" id="file-name-info"></div>
+
+                <div class="toggle-container">
+                    <label class="toggle-item">
+                        <input type="checkbox" id="compress" checked> Compress File
+                    </label>
+                    <label class="toggle-item">
+                        <input type="checkbox" id="autoFormat" checked> Convert to WebP (Images)
+                    </label>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <div class="form-group">
+                        <label for="upload-expiry">Expires (Minutes)</label>
+                        <input type="number" id="upload-expiry" placeholder="Never Expire" min="1">
+                    </div>
+                    <div class="form-group" style="justify-content: flex-end; align-items: flex-start;">
+                        <label class="toggle-item" style="padding-top: 10px;">
+                            <input type="checkbox" id="upload-burn"> Burn-On-Read (Self-Destruct)
+                        </label>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="upload-access">Access Control</label>
+                        <select id="upload-access">
+                            <option value="public">🌐 Public (Accessible to everyone)</option>
+                            <option value="private">🔒 Private (Token authorization required)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="upload-password">Lock Password</label>
+                        <input type="text" id="upload-password" placeholder="No Password (Optional)">
+                    </div>
+                </div>
+
+                <!-- Steganography Hidden Text -->
+                <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <label for="upload-stego">🕵️‍♂️ Spy Pixel Lock (Embed Secret message inside image pixels)</label>
+                    <input type="text" id="upload-stego" placeholder="Secret text payload to hide inside the image (Image must be PNG/JPG)">
+                </div>
+
+                <button id="upload-btn">Upload Files</button>
+                <div class="upload-queue" id="upload-queue"></div>
             </div>
-            
-            <div class="stats-container">
-                <div class="stat-card">
-                    <div class="stat-label">Total Files</div>
-                    <div class="stat-value" id="stat-total-files">0</div>
+        </div>
+
+        <!-- Panel 2. Page Capture -->
+        <div class="tab-panel" id="capture-panel">
+            <div class="card">
+                <h2>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    Webpage Capture Automation
+                </h2>
+                
+                <div class="form-group">
+                    <label for="url-input">Target Website URL</label>
+                    <input type="url" id="url-input" placeholder="https://example.com" value="https://news.ycombinator.com">
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Total Capacity</div>
-                    <div class="stat-value" id="stat-total-size">0 KB</div>
+
+                <div class="form-group">
+                    <label for="format-type">Format Output</label>
+                    <select id="format-type">
+                        <option value="screenshot">PNG Image Screenshot</option>
+                        <option value="pdf">A4 Document PDF</option>
+                    </select>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Images Count</div>
-                    <div class="stat-value" id="stat-images-count">0</div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <div class="form-group">
+                        <label for="capture-expiry">Expires (Minutes)</label>
+                        <input type="number" id="capture-expiry" placeholder="Never Expire" min="1">
+                    </div>
+                    <div class="form-group" style="justify-content: flex-end; align-items: flex-start;">
+                        <label class="toggle-item" style="padding-top: 10px;">
+                            <input type="checkbox" id="capture-burn"> Burn-On-Read (Self-Destruct)
+                        </label>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Videos Count</div>
-                    <div class="stat-value" id="stat-videos-count">0</div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="capture-access">Access Control</label>
+                        <select id="capture-access">
+                            <option value="public">🌐 Public (Accessible to everyone)</option>
+                            <option value="private">🔒 Private (Token authorization required)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="capture-password">Lock Password</label>
+                        <input type="text" id="capture-password" placeholder="No Password (Optional)">
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Docs Count</div>
-                    <div class="stat-value" id="stat-docs-count">0</div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <div class="form-group">
+                        <label for="capture-width">Viewport Width (px)</label>
+                        <input type="number" id="capture-width" value="1920">
+                    </div>
+                    <div class="form-group">
+                        <label for="capture-height">Viewport Height (px)</label>
+                        <input type="number" id="capture-height" value="1080">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="capture-fullpage">Capture Height</label>
+                        <select id="capture-fullpage">
+                            <option value="true">📄 Full Scrollable Page</option>
+                            <option value="false">💻 Visible Viewport Only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="capture-colorscheme">Color Scheme</label>
+                        <select id="capture-colorscheme">
+                            <option value="light">☀️ Light Mode</option>
+                            <option value="dark">🌙 Dark Mode</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="capture-delay">Load Delay (Sec)</label>
+                        <input type="number" id="capture-delay" value="0" min="0">
+                    </div>
+                </div>
+
+                <button id="capture-btn">Capture Page</button>
+                <div class="result" id="capture-result"></div>
+                <div class="preview-box" id="capture-preview-box"></div>
+            </div>
+        </div>
+
+        <!-- Panel 3. Cloud Asset Explorer -->
+        <div class="tab-panel" id="cdn-panel">
+            <div class="card">
+                <h2>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    Cloud Asset Manager
+                </h2>
+
+                <!-- Explorer search and filters -->
+                <div class="explorer-header">
+                    <div class="form-group" style="flex: 1; min-width: 250px;">
+                        <input type="text" id="explorer-search" placeholder="🔍 Search assets by name..." oninput="fetchExplorerFiles()">
+                    </div>
+                    <div class="explorer-filters">
+                        <div class="filter-btn active" data-category="" onclick="setFilterCategory(this)">All Assets</div>
+                        <div class="filter-btn" data-category="images" onclick="setFilterCategory(this)">🖼️ Images</div>
+                        <div class="filter-btn" data-category="videos" onclick="setFilterCategory(this)">🎥 Videos</div>
+                        <div class="filter-btn" data-category="docs" onclick="setFilterCategory(this)">📄 Documents</div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Grid -->
+                <div class="explorer-grid" id="explorer-grid"></div>
+
+                <!-- Interactive CDN Modal/Playground (Appears when editing an image) -->
+                <div class="cdn-modal" id="cdn-modal">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                        <h3 style="color: var(--accent-blue); font-size: 1.1rem; font-weight: 800;">⚙️ Live Image CDN Playground</h3>
+                        <span style="cursor: pointer; font-weight: bold; color: var(--text-muted);" onclick="closeCdnModal()">✕</span>
+                    </div>
+
+                    <div class="cdn-modal-grid">
+                        <div class="cdn-preview-pane">
+                            <img id="cdn-image-preview" src="" alt="CDN Preview">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="modal-cdn-w">Width Resize (px)</label>
+                                <input type="number" id="modal-cdn-w" placeholder="Auto / Original" oninput="updateCdnPreviewUrl()">
+                            </div>
+                            <div class="form-group">
+                                <label for="modal-cdn-h">Height Resize (px)</label>
+                                <input type="number" id="modal-cdn-h" placeholder="Auto / Original" oninput="updateCdnPreviewUrl()">
+                            </div>
+                            <div class="form-group">
+                                <label for="modal-cdn-q">Compress Quality (1-100)</label>
+                                <input type="number" id="modal-cdn-q" placeholder="Default (100)" min="1" max="100" oninput="updateCdnPreviewUrl()">
+                            </div>
+                            
+                            <div class="form-group" style="margin-top: 0.5rem;">
+                                <label>Compiled CDN URL</label>
+                                <input type="text" id="modal-cdn-url" readonly style="font-family: monospace; font-size: 0.8rem; background: rgba(0,0,0,0.2);">
+                            </div>
+
+                            <button onclick="copyCdnPreviewUrl()" style="font-size: 0.85rem; padding: 0.6rem;">📋 Copy CDN Link</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 5. Active Session Uploads Card -->
-        <div class="card full-width">
-            <h2>
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-                5. Session Upload History
-            </h2>
-            <div class="history-list" id="history-list">
-                <p id="no-history-text" style="color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No uploads performed in this session yet.</p>
+        <!-- Panel 4. Storage Stats -->
+        <div class="tab-panel" id="stats-panel">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+                    <h2 style="border-bottom: none; padding-bottom: 0;">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.003 9.003 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+                        Engine Storage Capacity
+                    </h2>
+                    <button id="refresh-stats-btn" style="padding: 0.5rem 1rem; font-size: 0.8rem;">🔄 Refresh</button>
+                </div>
+                
+                <div class="stats-container" style="margin-top: 0.5rem;">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Files</div>
+                        <div class="stat-value" id="stat-total-files">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Capacity</div>
+                        <div class="stat-value" id="stat-total-size">0 KB</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Images Count</div>
+                        <div class="stat-value" id="stat-images-count">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Videos Count</div>
+                        <div class="stat-value" id="stat-videos-count">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Docs Count</div>
+                        <div class="stat-value" id="stat-docs-count">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 5. Session History -->
+        <div class="tab-panel" id="history-panel">
+            <div class="card">
+                <h2>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                    Session Upload History
+                </h2>
+                <div class="history-list" id="history-list" style="margin-top: 0.5rem;">
+                    <p id="no-history-text" style="color: var(--text-muted); text-align: center; padding: 2rem 0;">No uploads performed in this session yet.</p>
+                </div>
             </div>
         </div>
 
@@ -648,9 +992,29 @@
 
     <script>
         const ENGINE_URL = 'http://localhost:8000';
-
-        // Keep track of uploaded files in this session
         const sessionHistory = [];
+        let activeFilterCategory = "";
+        let currentCdnFileId = "";
+
+        // Tab Navigation switching logic
+        const tabItems = document.querySelectorAll('.tab-item');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+
+        tabItems.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabItems.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                tabPanels.forEach(p => p.classList.remove('active'));
+                const targetPanelId = tab.getAttribute('data-tab');
+                document.getElementById(targetPanelId).classList.add('active');
+
+                // If Explorer tab clicked, fetch files
+                if (targetPanelId === 'cdn-panel') {
+                    fetchExplorerFiles();
+                }
+            });
+        });
 
         // Toast Helper
         function showToast(message) {
@@ -680,42 +1044,329 @@
         fileInput.addEventListener('change', () => {
             if (fileInput.files.length) {
                 fileNameInfo.style.display = 'block';
-                fileNameInfo.textContent = `Selected: ${fileInput.files[0].name}`;
-                document.getElementById('zone-text').textContent = "File Selected";
+                fileNameInfo.textContent = `Selected ${fileInput.files.length} file(s)`;
+                document.getElementById('zone-text').textContent = "Files Selected";
             }
         });
 
-        // Helper to render previews
-        function showPreview(boxId, fileUrl, mimeType) {
-            const box = document.getElementById(boxId);
-            box.style.display = 'flex';
-            box.innerHTML = '';
-
-            if (mimeType && mimeType.startsWith('image/')) {
-                const img = document.createElement('img');
-                img.src = fileUrl;
-                box.appendChild(img);
+        // Parallel Bulk Upload stream
+        document.getElementById('upload-btn').addEventListener('click', () => {
+            const files = fileInput.files;
+            if (!files.length) {
+                alert("Please select files first");
+                return;
             }
 
-            const openLink = document.createElement('a');
-            openLink.href = fileUrl;
-            openLink.target = '_blank';
-            openLink.className = 'btn-view';
-            openLink.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg> View Live Resource`;
-            box.appendChild(openLink);
+            const queue = document.getElementById('upload-queue');
+            queue.innerHTML = ''; // reset queue
+
+            const compress = document.getElementById('compress').checked;
+            const autoFormat = document.getElementById('autoFormat').checked;
+            const expiry = document.getElementById('upload-expiry').value;
+            const burn = document.getElementById('upload-burn').checked;
+            const access = document.getElementById('upload-access').value;
+            const password = document.getElementById('upload-password').value.trim();
+            const stegoText = document.getElementById('upload-stego').value.trim();
+
+            Array.from(files).forEach((file, index) => {
+                // Create queue item card
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'queue-item';
+                itemDiv.innerHTML = `
+                    <div class="queue-header">
+                        <span>${file.name} (${formatBytes(file.size)})</span>
+                        <span id="percent-${index}">0%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="bar-${index}"></div>
+                    </div>
+                    <span id="status-${index}" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Queueing...</span>
+                `;
+                queue.appendChild(itemDiv);
+
+                // Build FormData
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('compress', compress);
+                formData.append('autoFormat', autoFormat);
+                if (expiry) formData.append('expires_in_mins', expiry);
+                formData.append('burn_on_read', burn);
+                formData.append('access', access);
+                if (password) formData.append('password', password);
+                if (stegoText) formData.append('stego_text', stegoText);
+
+                // Start Parallel XHR streaming
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `${ENGINE_URL}/upload`, true);
+
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const pct = Math.round((e.loaded / e.total) * 100);
+                        document.getElementById(`bar-${index}`).style.width = `${pct}%`;
+                        document.getElementById(`percent-${index}`).textContent = `${pct}%`;
+                        document.getElementById(`status-${index}`).textContent = 'Streaming...';
+                    }
+                });
+
+                xhr.onload = () => {
+                    const statusText = document.getElementById(`status-${index}`);
+                    const percentText = document.getElementById(`percent-${index}`);
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        const response = JSON.parse(xhr.responseText);
+                        statusText.textContent = '✅ Upload Success!';
+                        statusText.style.color = 'var(--accent-green)';
+                        percentText.textContent = '100%';
+                        addToHistory(response.data);
+                        refreshStats();
+                    } else {
+                        statusText.textContent = '❌ Upload Failed';
+                        statusText.style.color = 'var(--accent-red)';
+                    }
+                };
+
+                xhr.onerror = () => {
+                    const statusText = document.getElementById(`status-${index}`);
+                    statusText.textContent = '❌ Network Error';
+                    statusText.style.color = 'var(--accent-red)';
+                };
+
+                xhr.send(formData);
+            });
+        });
+
+        // 2. Capture logic
+        document.getElementById('capture-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('capture-btn');
+            const resultBox = document.getElementById('capture-result');
+            const previewBox = document.getElementById('capture-preview-box');
+            const url = document.getElementById('url-input').value.trim();
+            const format_type = document.getElementById('format-type').value;
+
+            if (!url) {
+                alert("Please enter a URL");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Capturing page...';
+            resultBox.style.display = 'none';
+            previewBox.style.display = 'none';
+
+            const payload = { url, format_type };
+            const expiry = document.getElementById('capture-expiry').value;
+            if (expiry) payload.expires_in_mins = parseInt(expiry);
+            payload.burn_on_read = document.getElementById('capture-burn').checked;
+            payload.access = document.getElementById('capture-access').value;
+            
+            const pwd = document.getElementById('capture-password').value.trim();
+            if (pwd) payload.password = pwd;
+
+            payload.full_page = document.getElementById('capture-fullpage').value === 'true';
+            payload.color_scheme = document.getElementById('capture-colorscheme').value;
+            payload.delay = parseInt(document.getElementById('capture-delay').value) || 0;
+            payload.width = parseInt(document.getElementById('capture-width').value) || 1920;
+            payload.height = parseInt(document.getElementById('capture-height').value) || 1080;
+
+            try {
+                const res = await fetch(`${ENGINE_URL}/capture`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                resultBox.style.display = 'block';
+                resultBox.style.color = res.ok ? '#34d399' : '#f87171';
+                resultBox.textContent = JSON.stringify(data, null, 2);
+
+                if (res.ok && data.status === 'success') {
+                    showPreview('capture-preview-box', data.data.url, data.data.mime_type);
+                    addToHistory(data.data);
+                    refreshStats();
+                }
+            } catch (err) {
+                resultBox.style.display = 'block';
+                resultBox.style.color = '#f87171';
+                resultBox.textContent = 'Connection Error: Make sure FastAPI engine is running on port 8000';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Capture Page';
+            }
+        });
+
+        // 3. Asset Explorer Logic
+        function setFilterCategory(btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeFilterCategory = btn.getAttribute('data-category');
+            fetchExplorerFiles();
         }
 
-        // Add item to history log
-        function addToHistory(fileData) {
-            sessionHistory.push(fileData);
-            renderHistory();
+        async function fetchExplorerFiles() {
+            const searchVal = document.getElementById('explorer-search').value.trim();
+            const grid = document.getElementById('explorer-grid');
+            
+            let queryUrl = `${ENGINE_URL}/api/files?`;
+            if (activeFilterCategory) queryUrl += `category=${activeFilterCategory}&`;
+            if (searchVal) queryUrl += `search=${encodeURIComponent(searchVal)}&`;
+
+            try {
+                const res = await fetch(queryUrl);
+                const result = await res.json();
+                if (res.ok && result.status === 'success') {
+                    grid.innerHTML = '';
+                    const files = result.data;
+                    
+                    if (files.length === 0) {
+                        grid.innerHTML = `<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: 2rem 0;">No assets found matching the criteria.</p>`;
+                        return;
+                    }
+
+                    files.forEach(file => {
+                        const isImg = file.mime_type.startsWith('image/');
+                        const isVid = file.mime_type.startsWith('video/');
+                        const isLocked = !!file.password;
+                        const isPrivate = file.access === 'private';
+
+                        // Build preview block
+                        let previewHtml = '';
+                        if (isImg) {
+                            previewHtml = `<img src="${file.url}?w=300&q=70" alt="${file.filename}">`;
+                        } else if (isVid) {
+                            previewHtml = `
+                                <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125h-7.5a1.125 1.125 0 01-1.125-1.125m9.75 0v-1.5c0-.621-.504-1.125-1.125-1.125m0 1.5h-7.5m7.5 0V5.625m0 0a1.125 1.125 0 00-1.125-1.125h-7.5a1.125 1.125 0 00-1.125 1.125M3.375 5.625c0-.621.504-1.125 1.125-1.125h7.5c.621 0 1.125.504 1.125 1.125m-9.75 0V8.25m0-2.625h7.5m-7.5 0v1.5m18.375-1.5V8.25m0-2.625h-7.5M12 5.625v12.75m0-12.75c0-.621.504-1.125 1.125-1.125h7.5m-8.625 1.125V8.25"/>
+                                </svg>
+                            `;
+                        } else {
+                            previewHtml = `
+                                <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                                </svg>
+                            `;
+                        }
+
+                        // Badges
+                        const badges = [];
+                        badges.push(`<span class="badge ${isPrivate ? 'badge-private' : 'badge-public'}">${file.access || 'public'}</span>`);
+                        if (isLocked) badges.push(`<span class="badge badge-locked">Pass</span>`);
+                        if (file.burn_on_read) badges.push(`<span class="badge badge-locked">Burn</span>`);
+                        if (file.has_stego) badges.push(`<span class="badge" style="background: #e11d48; color: white;">Stego</span>`);
+
+                        const cardHtml = `
+                            <div class="explorer-card">
+                                <div class="card-preview">
+                                    ${previewHtml}
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-title" title="${file.original_name}">${file.original_name}</div>
+                                    <div class="card-meta">
+                                        <span>${formatBytes(file.size)}</span>
+                                        <span>ID: <strong>${file.id}</strong></span>
+                                    </div>
+                                    <div class="card-badges">
+                                        ${badges.join('')}
+                                    </div>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="action-icon-btn" onclick="copyHistoryLink('${file.url}')">📋 Link</button>
+                                    ${isImg ? `<button class="action-icon-btn" onclick="openCdnModal('${file.id}')">⚙️ CDN</button>` : ''}
+                                    ${file.has_stego ? `<button class="action-icon-btn" style="background: rgba(225, 29, 72, 0.15); color: #fda4af; border-color: rgba(225, 29, 72, 0.3);" onclick="revealStego('${file.id}')">🔓 Secret</button>` : ''}
+                                    <button class="action-icon-btn" style="color: var(--accent-red); border-color: rgba(239, 68, 68, 0.2);" onclick="deleteExplorerItem('${file.id}')">🗑️ Del</button>
+                                </div>
+                            </div>
+                        `;
+                        grid.insertAdjacentHTML('beforeend', cardHtml);
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to query explorer files: ", err);
+            }
         }
+
+        // Stego reveal text helper
+        window.revealStego = async function(id) {
+            try {
+                const res = await fetch(`${ENGINE_URL}/file/${id}`);
+                const result = await res.json();
+                if (res.ok && result.status === 'success') {
+                    const msg = result.data.stego_text;
+                    if (msg) {
+                        alert(`🔓 DECODED SECRET MESSAGE IN PIXELS:\n\n"${msg}"`);
+                    } else {
+                        alert("No secret message found or could not be decoded.");
+                    }
+                } else {
+                    alert("Failed to retrieve file metadata.");
+                }
+            } catch (err) {
+                alert("Network error occurred.");
+            }
+        };
+
+        // Delete item from explorer helper
+        window.deleteExplorerItem = async function(id) {
+            if (!confirm(`Are you sure you want to delete file ${id}?`)) return;
+            try {
+                const res = await fetch(`${ENGINE_URL}/file/${id}`, {
+                    method: 'DELETE'
+                });
+                if (res.ok) {
+                    fetchExplorerFiles();
+                    refreshStats();
+                    showToast("File deleted from server.");
+                } else {
+                    alert("Delete failed.");
+                }
+            } catch (err) {
+                alert("Connection failed.");
+            }
+        };
+
+        // CDN playground helper
+        window.openCdnModal = function(fileId) {
+            currentCdnFileId = fileId;
+            document.getElementById('cdn-modal').style.display = 'flex';
+            document.getElementById('modal-cdn-w').value = '';
+            document.getElementById('modal-cdn-h').value = '';
+            document.getElementById('modal-cdn-q').value = '';
+            updateCdnPreviewUrl();
+        };
+
+        window.closeCdnModal = function() {
+            document.getElementById('cdn-modal').style.display = 'none';
+        };
+
+        window.updateCdnPreviewUrl = function() {
+            const w = document.getElementById('modal-cdn-w').value;
+            const h = document.getElementById('modal-cdn-h').value;
+            const q = document.getElementById('modal-cdn-q').value;
+
+            let cdnUrl = `${ENGINE_URL}/f/${currentCdnFileId}`;
+            const params = [];
+            if (w) params.push(`w=${w}`);
+            if (h) params.push(`h=${h}`);
+            if (q) params.push(`q=${q}`);
+
+            if (params.length > 0) {
+                cdnUrl += `?${params.join('&')}`;
+            }
+
+            document.getElementById('modal-cdn-url').value = cdnUrl;
+            document.getElementById('cdn-image-preview').src = cdnUrl;
+        };
+
+        window.copyCdnPreviewUrl = function() {
+            const urlInput = document.getElementById('modal-cdn-url');
+            navigator.clipboard.writeText(urlInput.value).then(() => {
+                showToast("CDN link copied to clipboard!");
+            });
+        };
 
         // Render history list
         function renderHistory() {
             const list = document.getElementById('history-list');
             if (sessionHistory.length === 0) {
-                list.innerHTML = `<p id="no-history-text" style="color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No uploads performed in this session yet.</p>`;
+                list.innerHTML = `<p id="no-history-text" style="color: var(--text-muted); text-align: center; padding: 2rem 0;">No uploads performed in this session yet.</p>`;
                 return;
             }
 
@@ -770,17 +1421,16 @@
                 const res = await fetch(`${ENGINE_URL}/file/${id}`, {
                     method: 'DELETE'
                 });
-                const data = await res.json();
                 if (res.ok) {
                     sessionHistory.splice(indexInArray, 1);
                     renderHistory();
                     refreshStats();
                     showToast("Asset deleted from storage");
                 } else {
-                    alert(`Delete failed: ${data.detail || 'Unknown error'}`);
+                    alert("Delete failed.");
                 }
             } catch (err) {
-                alert("Failed to connect to backend engine for deletion.");
+                alert("Connection failed.");
             }
         };
 
@@ -806,176 +1456,6 @@
         // Run stats on load
         window.addEventListener('load', refreshStats);
         document.getElementById('refresh-stats-btn').addEventListener('click', refreshStats);
-
-        // 1. Upload logic
-        document.getElementById('upload-btn').addEventListener('click', async () => {
-            const btn = document.getElementById('upload-btn');
-            const resultBox = document.getElementById('upload-result');
-            const previewBox = document.getElementById('upload-preview-box');
-
-            if (!fileInput.files.length) {
-                alert("Please select a file first");
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = 'Uploading...';
-            resultBox.style.display = 'none';
-            previewBox.style.display = 'none';
-
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            formData.append('compress', document.getElementById('compress').checked);
-            formData.append('autoFormat', document.getElementById('autoFormat').checked);
-            
-            const expiry = document.getElementById('upload-expiry').value;
-            if (expiry) formData.append('expires_in_mins', expiry);
-            
-            formData.append('burn_on_read', document.getElementById('upload-burn').checked);
-            formData.append('access', document.getElementById('upload-access').value);
-            
-            const pwd = document.getElementById('upload-password').value.trim();
-            if (pwd) formData.append('password', pwd);
-
-            try {
-                const res = await fetch(`${ENGINE_URL}/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
-                resultBox.style.display = 'block';
-                resultBox.style.color = res.ok ? '#34d399' : '#f87171';
-                resultBox.textContent = JSON.stringify(data, null, 2);
-
-                if (res.ok && data.status === 'success') {
-                    showPreview('upload-preview-box', data.data.url, data.data.mime_type);
-                    addToHistory(data.data);
-                    refreshStats();
-                }
-            } catch (err) {
-                resultBox.style.display = 'block';
-                resultBox.style.color = '#f87171';
-                resultBox.textContent = 'Connection Error: Make sure FastAPI engine is running on port 8000';
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Upload to Engine';
-            }
-        });
-
-        // 2. Capture logic
-        document.getElementById('capture-btn').addEventListener('click', async () => {
-            const btn = document.getElementById('capture-btn');
-            const resultBox = document.getElementById('capture-result');
-            const previewBox = document.getElementById('capture-preview-box');
-            const url = document.getElementById('url-input').value.trim();
-            const format_type = document.getElementById('format-type').value;
-
-            if (!url) {
-                alert("Please enter a URL");
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = 'Capturing page...';
-            resultBox.style.display = 'none';
-            previewBox.style.display = 'none';
-
-            const payload = { url, format_type };
-            const expiry = document.getElementById('capture-expiry').value;
-            if (expiry) payload.expires_in_mins = parseInt(expiry);
-            payload.burn_on_read = document.getElementById('capture-burn').checked;
-            payload.access = document.getElementById('capture-access').value;
-            
-            const pwd = document.getElementById('capture-password').value.trim();
-            if (pwd) payload.password = pwd;
-
-            try {
-                const res = await fetch(`${ENGINE_URL}/capture`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                resultBox.style.display = 'block';
-                resultBox.style.color = res.ok ? '#34d399' : '#f87171';
-                resultBox.textContent = JSON.stringify(data, null, 2);
-
-                if (res.ok && data.status === 'success') {
-                    showPreview('capture-preview-box', data.data.url, data.data.mime_type);
-                    addToHistory(data.data);
-                    refreshStats();
-                }
-            } catch (err) {
-                resultBox.style.display = 'block';
-                resultBox.style.color = '#f87171';
-                resultBox.textContent = 'Connection Error: Make sure FastAPI engine is running on port 8000';
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Capture Page';
-            }
-        });
-
-        // 3. Query / Inspect logic (incorporates CDN parameters & Security checks)
-        document.getElementById('inspect-btn').addEventListener('click', async () => {
-            const btn = document.getElementById('inspect-btn');
-            const resultBox = document.getElementById('inspect-result');
-            const previewBox = document.getElementById('inspect-preview-box');
-            const fileId = document.getElementById('inspect-id').value.trim();
-
-            if (!fileId) {
-                alert("Please enter an ID");
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = 'Searching...';
-            resultBox.style.display = 'none';
-            previewBox.style.display = 'none';
-
-            const pwd = document.getElementById('inspect-password').value.trim();
-            const token = document.getElementById('inspect-token').value.trim();
-
-            try {
-                // Fetch metadata
-                const metaUrl = new URL(`${ENGINE_URL}/file/${fileId}`);
-                const res = await fetch(metaUrl);
-                const data = await res.json();
-                resultBox.style.display = 'block';
-                resultBox.style.color = res.ok ? '#34d399' : '#f87171';
-                resultBox.textContent = JSON.stringify(data, null, 2);
-
-                if (res.ok && data.status === 'success') {
-                    const fileData = data.data;
-
-                    // Build CDN serving URL
-                    let cdnUrl = `${ENGINE_URL}/f/${fileId}`;
-                    const params = [];
-                    
-                    const w = document.getElementById('cdn-w').value;
-                    const h = document.getElementById('cdn-h').value;
-                    const q = document.getElementById('cdn-q').value;
-
-                    if (w) params.push(`w=${w}`);
-                    if (h) params.push(`h=${h}`);
-                    if (q) params.push(`q=${q}`);
-                    if (pwd) params.push(`password=${pwd}`);
-                    if (token) params.push(`token=${token}`);
-
-                    if (params.length > 0) {
-                        cdnUrl += `?${params.join('&')}`;
-                    }
-
-                    showPreview('inspect-preview-box', cdnUrl, fileData.mime_type);
-                }
-            } catch (err) {
-                resultBox.style.display = 'block';
-                resultBox.style.color = '#f87171';
-                resultBox.textContent = 'Connection Error: Make sure FastAPI engine is running on port 8000';
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Query ID';
-            }
-        });
     </script>
 </body>
 </html>
